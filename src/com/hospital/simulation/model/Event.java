@@ -23,6 +23,7 @@ public class Event implements Comparable<Event> {
         return patient;
     }
 
+
     public int compareTo(Event other){
         return this.time - other.time;         // EARLIER EVENT FIRST
     }
