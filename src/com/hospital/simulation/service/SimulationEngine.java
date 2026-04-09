@@ -3,14 +3,14 @@ package com.hospital.simulation.service;
 import com.hospital.simulation.model.*;
 import com.hospital.simulation.util.SchedulingStrategy;
 import com.hospital.simulation.util.Difficulty;
+import com.hospital.simulation.strategy.*;
 
-
-import java.sql.SQLOutput;
 import java.util.*;
 
 public class SimulationEngine {
 
     private SchedulingStrategy strategy;
+    private SchedulingAlgorithm algorithm;
 
     private PriorityQueue<Event> eventQueue;
     private Hospital hospital;
@@ -39,6 +39,19 @@ public class SimulationEngine {
 
         // (optional but recommended)
         this.currentTime = 0;
+
+        // 🎯 Strategy mapping
+        switch (strategy) {
+            case FCFS:
+                this.algorithm = new FCFSStrategy();
+                break;
+            case PRIORITY:
+                this.algorithm = new PriorityStrategy();
+                break;
+            case SJF:
+                this.algorithm = new SJFStrategy();
+                break;
+        }
 
         // 🎮 Difficulty settings
         if (difficulty == Difficulty.EASY) {
@@ -71,54 +84,6 @@ public class SimulationEngine {
                 handleDeparture(event);
                 break;
         }
-    }
-
-    private Patient selectPatient(){
-        switch (strategy) {
-            case FCFS :
-                if (!hospital.getEmergencyQueue().isEmpty()) {
-                    return hospital.getEmergencyQueue().poll();
-                }
-                return hospital.getNormalQueue().poll();
-
-            case PRIORITY:
-                if(!hospital.getEmergencyQueue().isEmpty())
-                    return hospital.getEmergencyQueue().poll();
-                if(!hospital.getNormalQueue().isEmpty())
-                    return hospital.getNormalQueue().poll();
-                break;
-
-            case SJF:
-                return getShortestJobPatient();
-        }
-        return null;
-    }
-
-    private Patient getShortestJobPatient(){
-        List<Patient> allPatients = new ArrayList<>();
-
-        while(!hospital.getEmergencyQueue().isEmpty()){
-            allPatients.add(hospital.getEmergencyQueue().poll());
-        }
-
-
-        while (!hospital.getNormalQueue().isEmpty()){
-            allPatients.add(hospital.getNormalQueue().poll());
-        }
-
-        if(allPatients.isEmpty()) return null;
-
-        Patient shortest = Collections.min(allPatients, Comparator.comparingInt(Patient::getTreatmentTime));
-
-        allPatients.remove(shortest);
-
-        for (Patient p : allPatients) {
-            if (p.getSeverity() == 1)
-                hospital.getEmergencyQueue().add(p);
-            else
-                hospital.getNormalQueue().add(p);
-        }
-        return shortest;
     }
 
     private Scanner sc = new Scanner(System.in);
@@ -155,7 +120,7 @@ public class SimulationEngine {
 
             } else {
                 // 🤖 SIMULATION MODE
-                patient = selectPatient();
+                patient = algorithm.selectPatient(hospital);
 
                 if (patient == null) break;
             }
