@@ -22,10 +22,7 @@ public class SJFStrategy implements SchedulingAlgorithm {
 
         if (allPatients.isEmpty()) return null;
 
-        Patient shortest = Collections.min(
-                allPatients,
-                Comparator.comparingInt(Patient::getTreatmentTime)
-        );
+        Patient shortest = Collections.min(allPatients, Comparator.comparingInt(Patient::getTreatmentTime));
 
         allPatients.remove(shortest);
 

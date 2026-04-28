@@ -3,6 +3,9 @@ package com.hospital.simulation;
 import com.hospital.simulation.service.SimulationEngine;
 import com.hospital.simulation.util.SchedulingStrategy;
 import com.hospital.simulation.util.Difficulty;
+import com.hospital.simulation.ui.HospitalGUI;
+import javax.swing.SwingUtilities;
+import com.hospital.simulation.ui.ComparisonDashboard;
 
 import java.util.Scanner;
 
@@ -26,7 +29,7 @@ public class Main {
 
                 case 1:
                     playGame(sc);
-                    break;
+                    return;
 
                 case 2:
                     compareStrategies();
@@ -41,6 +44,7 @@ public class Main {
             }
         }
     }
+
 
     //  GAME MODE (PLAYER CHOOSES STRATEGY)
     private static void playGame(Scanner sc) {
@@ -63,7 +67,6 @@ public class Main {
                 return;
         }
 
-        // 🎮 NEW: Difficulty selection
         System.out.println("\nChoose Difficulty:");
         System.out.println("1. Easy");
         System.out.println("2. Hard");
@@ -81,22 +84,17 @@ public class Main {
             doctors = 1;
         }
 
-        System.out.println("\nStarting Game...");
-        System.out.println("Strategy: " + strategy);
-        System.out.println("Difficulty: " + difficulty);
+        System.out.println("\nLaunching GUI Game...");
 
-        new SimulationEngine(doctors, strategy, difficulty, true).startSimulation();
+        SwingUtilities.invokeLater(() -> {
+            new HospitalGUI(doctors, strategy, difficulty);
+        });
+
+        return;
     }
 
     private static void compareStrategies() {
 
-        System.out.println("\nRunning FCFS.....");
-        new SimulationEngine(1, SchedulingStrategy.FCFS, Difficulty.EASY, false).startSimulation();
-
-        System.out.println("\nRunning PRIORITY.....");
-        new SimulationEngine(3, SchedulingStrategy.PRIORITY, Difficulty.EASY, false).startSimulation();
-
-        System.out.println("\nRunning SJF......");
-        new SimulationEngine(3, SchedulingStrategy.SJF, Difficulty.EASY, false).startSimulation();
+        SwingUtilities.invokeLater(ComparisonDashboard::new);
     }
 }
